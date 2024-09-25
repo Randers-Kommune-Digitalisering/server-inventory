@@ -87,7 +87,7 @@ with services_tab:
 
 with system_info_tab:
     system_info_df = pd.read_sql("SELECT * FROM SystemInfo", db_client.get_connection())
-    system_info_df = system_info_df[['ComputerName', 'LastBootUpTime', 'OSVersion', 'CPU', 'TotalRAM_GB', 'UpdateTimeStamp']]
+    system_info_df = system_info_df[['ComputerName', 'lastbootuptime', 'OSVersion', 'CPU', 'TotalRAM_GB', 'UpdateTimeStamp']]
     system_info_df = system_info_df.rename(columns={'lastbootuptime': 'LastBootUpTime'})
 
     for computer in system_info_df['ComputerName'].unique():
