@@ -127,7 +127,6 @@ with scheduled_tasks_tab:
         st.write(f"**Scheduled Tasks for {selected_computer} - {update_time}**")
 
     with table_col:
-        # Drop columns only if they exist
         columns_to_drop = ['ComputerName', 'UpdateTimeStamp']
         columns_to_drop = [col for col in columns_to_drop if col in display_df.columns]
         st.markdown(display_df.drop(columns=columns_to_drop).to_html(index=False), unsafe_allow_html=True)
@@ -152,9 +151,12 @@ with share_access_info:
 with personal_certificates:
     personal_certificates_df = pd.read_sql("SELECT * FROM PersonalCertificates", db_client.get_connection())
     personal_certificates_df = personal_certificates_df[['ComputerName', 'Subject', 'NotBefore', 'NotAfter', 'Issuer', 'UpdateTimeStamp']]
+    personal_certificates_df['NotAfter'] = pd.to_datetime(personal_certificates_df['NotAfter'], errors='coerce')
+    personal_certificates_df['NotAfterFormatted'] = personal_certificates_df['NotAfter'].dt.strftime('%d/%m/%Y %H:%M:%S')
 
     selected_computer = st.selectbox("Select a Computer", personal_certificates_df['ComputerName'].unique(), key="personal_certificates")
     computer_df = personal_certificates_df[personal_certificates_df['ComputerName'] == selected_computer]
+    computer_df = computer_df.sort_values(by='NotAfter', ascending=False)
     update_time = personal_certificates_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
 
     chart_col, table_col = st.columns(2)
@@ -163,6 +165,7 @@ with personal_certificates:
         st.write(f"**Personal Certificates for {selected_computer} - {update_time}**")
     
     with table_col:
-        st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
-
-        
+        display_df = computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp', 'NotAfter'])
+        display_df = display_df.rename(columns={'NotAfterFormatted': 'NotAfter'})
+        display_df = display_df[['Subject', 'NotBefore', 'NotAfter', 'Issuer']]
+        st.markdown(display_df.to_html(index=False), unsafe_allow_html=True)
