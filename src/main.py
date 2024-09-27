@@ -104,10 +104,21 @@ with system_info_tab:
     
 with scheduled_tasks_tab:
     scheduled_tasks_df = pd.read_sql("SELECT * FROM ScheduledTasks", db_client.get_connection())
-    scheduled_tasks_df = scheduled_tasks_df[['ComputerName', 'LastRunTime', 'NextRunTime', 'Schedule', 'UpdateTimeStamp']]
-
+    scheduled_tasks_df = scheduled_tasks_df[['ComputerName', 'TaskName' ,'LastRunTime', 'NextRunTime', 'Schedule', 'UpdateTimeStamp']]
+    
     selected_computer = st.selectbox("Select a Computer", scheduled_tasks_df['ComputerName'].unique(), key="scheduled_tasks")
     computer_df = scheduled_tasks_df[scheduled_tasks_df['ComputerName'] == selected_computer]
+    
+    # Filter Values in TaskName column
+    value_to_exclude = ('User_Feed_Synchronization', 'Optimize Start Menu Cache Files', 'Firefox')
+    filtered_df = computer_df[~computer_df['TaskName'].str.startswith(value_to_exclude)]
+    
+    display_df = computer_df[['ComputerName', 'LastRunTime', 'NextRunTime', 'Schedule']].drop_duplicates().merge(
+        filtered_df[['ComputerName', 'TaskName', 'LastRunTime', 'NextRunTime', 'Schedule']], 
+        on=['ComputerName', 'LastRunTime', 'NextRunTime', 'Schedule'], 
+        how='left'
+    )
+    
     update_time = scheduled_tasks_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
 
     chart_col, table_col = st.columns(2)
@@ -116,7 +127,11 @@ with scheduled_tasks_tab:
         st.write(f"**Scheduled Tasks for {selected_computer} - {update_time}**")
 
     with table_col:
-        st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
+        # Drop columns only if they exist
+        columns_to_drop = ['ComputerName', 'UpdateTimeStamp']
+        columns_to_drop = [col for col in columns_to_drop if col in display_df.columns]
+        st.markdown(display_df.drop(columns=columns_to_drop).to_html(index=False), unsafe_allow_html=True)
+
 
 with share_access_info:
     share_access_df = pd.read_sql("SELECT * FROM ShareAccessInfo", db_client.get_connection())
@@ -149,4 +164,5 @@ with personal_certificates:
     
     with table_col:
         st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
+
         
