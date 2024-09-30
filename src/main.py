@@ -64,7 +64,7 @@ with installed_software_tab:
     chart_col, table_col = st.columns(2)
 
     with chart_col:
-        st.write(f"**Installed Software for {selected_computer} - {update_time}**")
+        st.markdown(f'''Installed Software for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
 
     with table_col:
         st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
@@ -80,7 +80,7 @@ with services_tab:
     chart_col, table_col = st.columns(2)
 
     with chart_col:
-        st.write(f"**Services for {selected_computer} - {update_time}**")
+        st.markdown(f'''Services for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
     
     with table_col:
         st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
@@ -97,7 +97,7 @@ with system_info_tab:
     chart_col, table_col = st.columns(2)
 
     with chart_col:
-        st.write(f"**System Info for {selected_computer} - {update_time}**")
+        st.markdown(f'''System Info for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
     
     with table_col:
         st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
@@ -124,9 +124,10 @@ with scheduled_tasks_tab:
     chart_col, table_col = st.columns(2)
 
     with chart_col:
-        st.write(f"**Scheduled Tasks for {selected_computer} - {update_time}**")
+        st.markdown(f'''Scheduled Tasks for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
 
     with table_col:
+
         columns_to_drop = ['ComputerName', 'UpdateTimeStamp']
         columns_to_drop = [col for col in columns_to_drop if col in display_df.columns]
         st.markdown(display_df.drop(columns=columns_to_drop).to_html(index=False), unsafe_allow_html=True)
@@ -143,7 +144,7 @@ with share_access_info:
     chart_col, table_col = st.columns(2)
 
     with chart_col:
-        st.write(f"**Share Access Info for {selected_computer} - {update_time}**")
+        st.markdown(f'''Share Access Info for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
 
     with table_col:
         st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
@@ -162,7 +163,7 @@ with personal_certificates:
     chart_col, table_col = st.columns(2)
 
     with chart_col:
-        st.write(f"**Personal Certificates for {selected_computer} - {update_time}**")
+        st.markdown(f'''Personal Certificates for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
     
     with table_col:
         display_df = computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp', 'NotAfter'])
