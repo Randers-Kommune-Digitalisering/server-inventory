@@ -88,22 +88,65 @@ with services_tab:
     with table_col:
         st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
 
+# with system_info_tab:
+#     system_info_df = pd.read_sql("SELECT * FROM SystemInfo", db_client.get_connection())
+#     system_info_df = system_info_df[['ComputerName', 'lastbootuptime', 'OSVersion', 'CPU', 'TotalRAM_GB', 'UpdateTimeStamp']]
+#     system_info_df = system_info_df.rename(columns={'lastbootuptime': 'LastBootUpTime'})
+
+#     computer_options = ['All Computers'] + list(system_info_df['ComputerName'].unique())
+#     selected_computer = st.selectbox("Select a Computer", computer_options)
+
+#     if selected_computer == 'All Computers':
+#         computer_df = system_info_df
+#         update_time = "N/A"
+#     else:
+#         computer_df = system_info_df[system_info_df['ComputerName'] == selected_computer]
+#         update_time = computer_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
+
+#     chart_col, table_col = st.columns(2)
+
+#     with chart_col:
+#         st.markdown(f'''System Info for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
+
+#     with table_col:
+#         st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
+# with system_info_tab:
+#     system_info_df = pd.read_sql("SELECT * FROM SystemInfo", db_client.get_connection())
+#     system_info_df = system_info_df[['ComputerName', 'lastbootuptime', 'OSVersion', 'CPU', 'TotalRAM_GB', 'UpdateTimeStamp']]
+#     system_info_df = system_info_df.rename(columns={'lastbootuptime': 'LastBootUpTime'})
+
+#     computer_options = ['All Computers'] + list(system_info_df['ComputerName'].unique())
+#     selected_computer = st.selectbox("Select a Computer", computer_options)
+
+#     if selected_computer == 'All Computers':
+#         computer_df = system_info_df
+#         update_time = "N/A"
+#     else:
+#         computer_df = system_info_df[system_info_df['ComputerName'] == selected_computer]
+#         update_time = computer_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
+
+#     with st.expander("Show System Info Chart"):
+#         st.markdown(f'''System Info for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
+
+#     st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
 with system_info_tab:
     system_info_df = pd.read_sql("SELECT * FROM SystemInfo", db_client.get_connection())
     system_info_df = system_info_df[['ComputerName', 'lastbootuptime', 'OSVersion', 'CPU', 'TotalRAM_GB', 'UpdateTimeStamp']]
     system_info_df = system_info_df.rename(columns={'lastbootuptime': 'LastBootUpTime'})
 
-    selected_computer = st.selectbox("Select a Computer", system_info_df['ComputerName'].unique())
-    computer_df = system_info_df[system_info_df['ComputerName'] == selected_computer]
-    update_time = computer_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
+    computer_options = ['All Computers'] + list(system_info_df['ComputerName'].unique())
+    selected_computer = st.selectbox("Select a Computer", computer_options)
 
-    chart_col, table_col = st.columns(2)
+    if selected_computer == 'All Computers':
+        computer_df = system_info_df
+        update_time = "N/A"
+    else:
+        computer_df = system_info_df[system_info_df['ComputerName'] == selected_computer]
+        update_time = computer_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
 
-    with chart_col:
-        st.markdown(f'''System Info for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
+    st.markdown(f'''System Info for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
 
-    with table_col:
-        st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
+    st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
 
 with scheduled_tasks_tab:
     scheduled_tasks_df = pd.read_sql("SELECT * FROM ScheduledTasks", db_client.get_connection())
