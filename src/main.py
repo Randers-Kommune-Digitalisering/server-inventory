@@ -80,10 +80,10 @@ with services_tab:
 
     with chart_col:
         st.markdown(f'''Services for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
-    
+
     with table_col:
         st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
-    
+
 with system_info_tab:
     system_info_df = pd.read_sql("SELECT * FROM SystemInfo", db_client.get_connection())
     system_info_df = system_info_df[['ComputerName', 'lastbootuptime', 'OSVersion', 'CPU', 'TotalRAM_GB', 'UpdateTimeStamp']]
@@ -103,7 +103,7 @@ with system_info_tab:
 
 with scheduled_tasks_tab:
     scheduled_tasks_df = pd.read_sql("SELECT * FROM ScheduledTasks", db_client.get_connection())
-    scheduled_tasks_df = scheduled_tasks_df[['ComputerName', 'TaskName' ,'LastRunTime', 'NextRunTime', 'Schedule', 'UpdateTimeStamp']]
+    scheduled_tasks_df = scheduled_tasks_df[['ComputerName', 'TaskName', 'LastRunTime', 'NextRunTime', 'Schedule', 'UpdateTimeStamp']]
 
     selected_computer = st.selectbox("Select a Computer", scheduled_tasks_df['ComputerName'].unique(), key="scheduled_tasks")
     computer_df = scheduled_tasks_df[scheduled_tasks_df['ComputerName'] == selected_computer]
@@ -112,8 +112,8 @@ with scheduled_tasks_tab:
     filtered_df = computer_df[~computer_df['TaskName'].str.startswith(value_to_exclude)]
 
     display_df = computer_df[['ComputerName', 'LastRunTime', 'NextRunTime', 'Schedule']].drop_duplicates().merge(
-        filtered_df[['ComputerName', 'TaskName', 'LastRunTime', 'NextRunTime', 'Schedule']], 
-        on=['ComputerName', 'LastRunTime', 'NextRunTime', 'Schedule'], 
+        filtered_df[['ComputerName', 'TaskName', 'LastRunTime', 'NextRunTime', 'Schedule']],
+        on=['ComputerName', 'LastRunTime', 'NextRunTime', 'Schedule'],
         how='left'
     )
 
@@ -132,7 +132,7 @@ with scheduled_tasks_tab:
 
 with share_access_info:
     share_access_df = pd.read_sql("SELECT * FROM ShareAccessInfo", db_client.get_connection())
-    share_access_df = share_access_df[['ComputerName', 'ShareName', 'SharePath', 'NTFSAccessList', 'SMBAccessList' ,'UpdateTimeStamp']]
+    share_access_df = share_access_df[['ComputerName', 'ShareName', 'SharePath', 'NTFSAccessList', 'SMBAccessList', 'UpdateTimeStamp']]
 
     selected_computer = st.selectbox("Select a Computer", share_access_df['ComputerName'].unique(), key="share_access")
     computer_df = share_access_df[share_access_df['ComputerName'] == selected_computer]
