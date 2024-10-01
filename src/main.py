@@ -29,6 +29,7 @@ with disk_tab:
     if selected_computer == 'All Computers':
         computer_df = diskspace_df
         update_time = "N/A"
+        computer_df = computer_df.sort_values(by='FreeSpace_GB', ascending=True)
     else:
         computer_df = diskspace_df[diskspace_df['ComputerName'] == selected_computer]
         update_time = computer_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
@@ -88,47 +89,6 @@ with services_tab:
     with table_col:
         st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
 
-# with system_info_tab:
-#     system_info_df = pd.read_sql("SELECT * FROM SystemInfo", db_client.get_connection())
-#     system_info_df = system_info_df[['ComputerName', 'lastbootuptime', 'OSVersion', 'CPU', 'TotalRAM_GB', 'UpdateTimeStamp']]
-#     system_info_df = system_info_df.rename(columns={'lastbootuptime': 'LastBootUpTime'})
-
-#     computer_options = ['All Computers'] + list(system_info_df['ComputerName'].unique())
-#     selected_computer = st.selectbox("Select a Computer", computer_options)
-
-#     if selected_computer == 'All Computers':
-#         computer_df = system_info_df
-#         update_time = "N/A"
-#     else:
-#         computer_df = system_info_df[system_info_df['ComputerName'] == selected_computer]
-#         update_time = computer_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
-
-#     chart_col, table_col = st.columns(2)
-
-#     with chart_col:
-#         st.markdown(f'''System Info for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
-
-#     with table_col:
-#         st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
-# with system_info_tab:
-#     system_info_df = pd.read_sql("SELECT * FROM SystemInfo", db_client.get_connection())
-#     system_info_df = system_info_df[['ComputerName', 'lastbootuptime', 'OSVersion', 'CPU', 'TotalRAM_GB', 'UpdateTimeStamp']]
-#     system_info_df = system_info_df.rename(columns={'lastbootuptime': 'LastBootUpTime'})
-
-#     computer_options = ['All Computers'] + list(system_info_df['ComputerName'].unique())
-#     selected_computer = st.selectbox("Select a Computer", computer_options)
-
-#     if selected_computer == 'All Computers':
-#         computer_df = system_info_df
-#         update_time = "N/A"
-#     else:
-#         computer_df = system_info_df[system_info_df['ComputerName'] == selected_computer]
-#         update_time = computer_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
-
-#     with st.expander("Show System Info Chart"):
-#         st.markdown(f'''System Info for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
-
-#     st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
 with system_info_tab:
     system_info_df = pd.read_sql("SELECT * FROM SystemInfo", db_client.get_connection())
     system_info_df = system_info_df[['ComputerName', 'lastbootuptime', 'OSVersion', 'CPU', 'TotalRAM_GB', 'UpdateTimeStamp']]
@@ -195,22 +155,25 @@ with share_access_info:
 
 with personal_certificates:
     personal_certificates_df = pd.read_sql("SELECT * FROM PersonalCertificates", db_client.get_connection())
-    personal_certificates_df = personal_certificates_df[['ComputerName', 'Subject', 'NotBefore', 'NotAfter', 'Issuer', 'UpdateTimeStamp']]
+    personal_certificates_df = personal_certificates_df[['ComputerName', 'Subject', 'NotBefore', 'NotAfter', 'Issuer', 'Subject Alternative Name', 'UpdateTimeStamp']]
     personal_certificates_df['NotAfter'] = pd.to_datetime(personal_certificates_df['NotAfter'], errors='coerce')
     personal_certificates_df['NotAfterFormatted'] = personal_certificates_df['NotAfter'].dt.strftime('%d/%m/%Y %H:%M:%S')
 
-    selected_computer = st.selectbox("Select a Computer", personal_certificates_df['ComputerName'].unique(), key="personal_certificates")
-    computer_df = personal_certificates_df[personal_certificates_df['ComputerName'] == selected_computer]
-    computer_df = computer_df.sort_values(by='NotAfter', ascending=False)
-    update_time = personal_certificates_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
+    computer_options = ['All Computers'] + list(personal_certificates_df['ComputerName'].unique())
+    selected_computer = st.selectbox("Select a Computer", computer_options, key="personal_certificates")
 
-    chart_col, table_col = st.columns(2)
+    if selected_computer == 'All Computers':
+        computer_df = personal_certificates_df
+        update_time = "N/A"
+        computer_df = computer_df.sort_values(by='NotAfter', ascending=True)
+    else:
+        computer_df = personal_certificates_df[personal_certificates_df['ComputerName'] == selected_computer]
+        computer_df = computer_df.sort_values(by='NotAfter', ascending=True)
+        update_time = computer_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
 
-    with chart_col:
-        st.markdown(f'''Personal Certificates for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
+    st.markdown(f'''Personal Certificates for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
 
-    with table_col:
-        display_df = computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp', 'NotAfter'])
-        display_df = display_df.rename(columns={'NotAfterFormatted': 'NotAfter'})
-        display_df = display_df[['Subject', 'NotBefore', 'NotAfter', 'Issuer']]
-        st.markdown(display_df.to_html(index=False), unsafe_allow_html=True)
+    display_df = computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp', 'NotAfter'])
+    display_df = display_df.rename(columns={'NotAfterFormatted': 'NotAfter'})
+    display_df = display_df[['Subject', 'NotBefore', 'NotAfter', 'Issuer', 'Subject Alternative Name']]
+    st.markdown(display_df.to_html(index=False), unsafe_allow_html=True)
