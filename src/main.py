@@ -23,13 +23,18 @@ with disk_tab:
     diskspace_df['UsedSpace_GB'] = diskspace_df['TotalSize_GB'] - diskspace_df['FreeSpace_GB']
     diskspace_df['PercentageUsed'] = diskspace_df['UsedSpace_GB'] / diskspace_df['TotalSize_GB']
 
-    selected_computer = st.selectbox("Select a Computer", diskspace_df['ComputerName'].unique(), key="diskspace_computer")
-    computer_df = diskspace_df[diskspace_df['ComputerName'] == selected_computer]
-    update_time = computer_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
+    computer_options = ['All Computers'] + list(diskspace_df['ComputerName'].unique())
+    selected_computer = st.selectbox("Select a Computer", computer_options, key="diskspace_computer")
 
-    chart_col, table_col = st.columns(2)
+    if selected_computer == 'All Computers':
+        computer_df = diskspace_df
+        update_time = "N/A"
+    else:
+        computer_df = diskspace_df[diskspace_df['ComputerName'] == selected_computer]
+        update_time = computer_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
+        computer_df = computer_df.sort_values(by='FreeSpace_GB', ascending=True)
 
-    with chart_col:
+    with st.expander("Show Disk Space Chart"):
         melted_df = computer_df.melt(id_vars=['ComputerName', 'Drive'], value_vars=['UsedSpace_GB', 'FreeSpace_GB'], var_name='SpaceType', value_name='Space_GB')
 
         chart = alt.Chart(melted_df).mark_bar().encode(
@@ -45,11 +50,10 @@ with disk_tab:
         )
         st.altair_chart(chart, use_container_width=True)
 
-    with table_col:
-        table_df = computer_df[['Drive', 'UsedSpace_GB', 'FreeSpace_GB', 'TotalSize_GB', 'PercentageUsed']]
-        formatdict = {col: "{:,.2f} GB" for col in ['UsedSpace_GB', 'FreeSpace_GB', 'TotalSize_GB']}
-        formatdict['PercentageUsed'] = "{:.2%}"
-        st.markdown(table_df.style.format(formatdict).hide(axis="index").to_html(), unsafe_allow_html=True)
+    table_df = computer_df[['ComputerName', 'Drive', 'UsedSpace_GB', 'FreeSpace_GB', 'TotalSize_GB', 'PercentageUsed']]
+    formatdict = {col: "{:,.2f} GB" for col in ['UsedSpace_GB', 'FreeSpace_GB', 'TotalSize_GB']}
+    formatdict['PercentageUsed'] = "{:.2%}"
+    st.markdown(table_df.style.format(formatdict).hide(axis="index").to_html(), unsafe_allow_html=True)
 
 with installed_software_tab:
     installed_software_df = pd.read_sql("SELECT * FROM InstalledSoftware", db_client.get_connection())
