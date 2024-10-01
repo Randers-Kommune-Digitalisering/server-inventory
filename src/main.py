@@ -1,7 +1,6 @@
 import pandas as pd
 import altair as alt
 import streamlit as st
-import numpy as np
 
 from utils.database import DatabaseClient
 from utils.config import DB_HOST, DB_USER, DB_PASS, DB_NAME
@@ -55,7 +54,7 @@ with disk_tab:
 with installed_software_tab:
     installed_software_df = pd.read_sql("SELECT * FROM InstalledSoftware", db_client.get_connection())
     installed_software_df['InstallDate'] = pd.to_datetime(installed_software_df['InstallDate'], errors='coerce')
-    installed_software_df = installed_software_df[['ComputerName', 'DisplayVersion', 'DisplayName', 'InstallDate', 'Publisher', 'UpdateTimeStamp']]
+    installed_software_df = installed_software_df[['ComputerName', 'DisplayName', 'DisplayVersion', 'InstallDate', 'Publisher', 'UpdateTimeStamp']]
 
     selected_computer = st.selectbox("Select a Computer", installed_software_df['ComputerName'].unique(), key="installed_software_computer")
     computer_df = installed_software_df[installed_software_df['ComputerName'] == selected_computer]
@@ -98,27 +97,26 @@ with system_info_tab:
 
     with chart_col:
         st.markdown(f'''System Info for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
-    
+
     with table_col:
         st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
-    
+
 with scheduled_tasks_tab:
     scheduled_tasks_df = pd.read_sql("SELECT * FROM ScheduledTasks", db_client.get_connection())
     scheduled_tasks_df = scheduled_tasks_df[['ComputerName', 'TaskName' ,'LastRunTime', 'NextRunTime', 'Schedule', 'UpdateTimeStamp']]
-    
+
     selected_computer = st.selectbox("Select a Computer", scheduled_tasks_df['ComputerName'].unique(), key="scheduled_tasks")
     computer_df = scheduled_tasks_df[scheduled_tasks_df['ComputerName'] == selected_computer]
-    
-    # Filter Values in TaskName column
+
     value_to_exclude = ('User_Feed_Synchronization', 'Optimize Start Menu Cache Files', 'Firefox')
     filtered_df = computer_df[~computer_df['TaskName'].str.startswith(value_to_exclude)]
-    
+
     display_df = computer_df[['ComputerName', 'LastRunTime', 'NextRunTime', 'Schedule']].drop_duplicates().merge(
         filtered_df[['ComputerName', 'TaskName', 'LastRunTime', 'NextRunTime', 'Schedule']], 
         on=['ComputerName', 'LastRunTime', 'NextRunTime', 'Schedule'], 
         how='left'
     )
-    
+
     update_time = scheduled_tasks_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
 
     chart_col, table_col = st.columns(2)
@@ -131,7 +129,6 @@ with scheduled_tasks_tab:
         columns_to_drop = ['ComputerName', 'UpdateTimeStamp']
         columns_to_drop = [col for col in columns_to_drop if col in display_df.columns]
         st.markdown(display_df.drop(columns=columns_to_drop).to_html(index=False), unsafe_allow_html=True)
-
 
 with share_access_info:
     share_access_df = pd.read_sql("SELECT * FROM ShareAccessInfo", db_client.get_connection())
@@ -164,7 +161,7 @@ with personal_certificates:
 
     with chart_col:
         st.markdown(f'''Personal Certificates for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
-    
+
     with table_col:
         display_df = computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp', 'NotAfter'])
         display_df = display_df.rename(columns={'NotAfterFormatted': 'NotAfter'})
