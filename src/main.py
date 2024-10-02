@@ -182,5 +182,5 @@ with local_users:
     update_time = local_users_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
 
     st.markdown(f'''Local Users for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
-    
+
     st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
