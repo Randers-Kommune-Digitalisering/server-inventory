@@ -13,8 +13,8 @@ st.set_page_config(page_title="Server Inventory", layout="wide")
 
 st.title("Server Inventory")
 
-tabs = ["Disk Space", "Installed Software", "Services", "System Info", "Scheduled Tasks", "Share Access Info", "Personal Certificates", "Auto Run Info", "Local Users", "UserProfileList"]
-disk_tab, installed_software_tab, services_tab, system_info_tab, scheduled_tasks_tab, share_access_info_tab, personal_certificates_tab, auto_run_info_tab, local_users_tab, user_profile_list_tab = st.tabs(tabs)
+tabs = ["Disk Space", "Installed Software", "Services", "System Info", "Scheduled Tasks", "Share Access Info", "Personal Certificates", "Auto Run Info", "Local Users", "UserProfileList", "Installed Updates"]
+disk_tab, installed_software_tab, services_tab, system_info_tab, scheduled_tasks_tab, share_access_info_tab, personal_certificates_tab, auto_run_info_tab, local_users_tab, user_profile_list_tab, installed_updates_tab = st.tabs(tabs)
 
 with disk_tab:
     diskspace_df = pd.read_sql("SELECT * FROM DiskSpace", db_client.get_connection())
@@ -103,9 +103,12 @@ with system_info_tab:
 with scheduled_tasks_tab:
     scheduled_tasks_df = pd.read_sql("SELECT * FROM ScheduledTasks", db_client.get_connection())
     scheduled_tasks_df = scheduled_tasks_df[['ComputerName', 'TaskName', 'LastRunTime', 'NextRunTime', 'Schedule', 'UpdateTimeStamp', 'Principal']]
+    scheduled_tasks_df['LastRunTime'] = pd.to_datetime(scheduled_tasks_df['LastRunTime'], errors='coerce')
+    # scheduled_tasks_df['LastRunTimeFormatted'] = scheduled_tasks_df['LastRunTime'].dt.strftime('%d/%m/%Y %H:%M:%S')
 
     selected_computer = st.selectbox("Select a Computer", scheduled_tasks_df['ComputerName'].unique(), key="scheduled_tasks")
     computer_df = scheduled_tasks_df[scheduled_tasks_df['ComputerName'] == selected_computer]
+    computer_df = computer_df.sort_values(by='LastRunTime', ascending=False)
 
     value_to_exclude = ('User_Feed_Synchronization', 'Optimize Start Menu Cache Files', 'Firefox')
     filtered_df = computer_df[~computer_df['TaskName'].str.startswith(value_to_exclude)]
@@ -115,7 +118,6 @@ with scheduled_tasks_tab:
         on=['ComputerName', 'LastRunTime', 'NextRunTime', 'Schedule', 'Principal'],
         how='left'
     )
-
     update_time = scheduled_tasks_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
 
     st.markdown(f'''Scheduled Tasks for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
@@ -201,4 +203,22 @@ with user_profile_list_tab:
     display_df = computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp', 'LastWriteTime'])
     display_df = display_df.rename(columns={'LastWriteTimeFormatted': 'LastWriteTime'})
     display_df = display_df[['Name', 'CreationTime', 'LastWriteTime']]
+    st.markdown(display_df.to_html(index=False), unsafe_allow_html=True)
+
+with installed_updates_tab:
+    installed_updates_df = pd.read_sql("SELECT * FROM InstalledUpdates", db_client.get_connection())
+    installed_updates_df = installed_updates_df[['ComputerName', 'Title', 'Date', 'UpdateTimeStamp']]
+    installed_updates_df['Date'] = pd.to_datetime(installed_updates_df['Date'], errors='coerce')
+    installed_updates_df['DateFormatted'] = installed_updates_df['Date'].dt.strftime('%d/%m/%Y %H:%M:%S')
+
+    selected_computer = st.selectbox("Select a Computer", installed_updates_df['ComputerName'].unique(), key="installed_updates")
+    computer_df = installed_updates_df[installed_updates_df['ComputerName'] == selected_computer]
+    computer_df = computer_df.sort_values(by='Date', ascending=False)
+    update_time = installed_updates_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
+
+    st.markdown(f'''Installed Updates for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
+
+    display_df = computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp', 'Date'])
+    display_df = display_df.rename(columns={'DateFormatted': 'Date'})
+    display_df = display_df[['Title', 'Date']]
     st.markdown(display_df.to_html(index=False), unsafe_allow_html=True)
