@@ -65,13 +65,9 @@ with installed_software_tab:
     computer_df = installed_software_df[installed_software_df['ComputerName'] == selected_computer]
     update_time = computer_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
 
-    chart_col, table_col = st.columns(2)
+    st.markdown(f'''Installed Software for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
 
-    with chart_col:
-        st.markdown(f'''Installed Software for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
-
-    with table_col:
-        st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
+    st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
 
 with services_tab:
     services_df = pd.read_sql("SELECT * FROM Services", db_client.get_connection())
@@ -81,13 +77,9 @@ with services_tab:
     computer_df = services_df[services_df['ComputerName'] == selected_computer]
     update_time = computer_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
 
-    chart_col, table_col = st.columns(2)
+    st.markdown(f'''Services for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
 
-    with chart_col:
-        st.markdown(f'''Services for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
-
-    with table_col:
-        st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
+    st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
 
 with system_info_tab:
     system_info_df = pd.read_sql("SELECT * FROM SystemInfo", db_client.get_connection())
@@ -126,16 +118,11 @@ with scheduled_tasks_tab:
 
     update_time = scheduled_tasks_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
 
-    chart_col, table_col = st.columns(2)
+    st.markdown(f'''Scheduled Tasks for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
 
-    with chart_col:
-        st.markdown(f'''Scheduled Tasks for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
-
-    with table_col:
-
-        columns_to_drop = ['ComputerName', 'UpdateTimeStamp']
-        columns_to_drop = [col for col in columns_to_drop if col in display_df.columns]
-        st.markdown(display_df.drop(columns=columns_to_drop).to_html(index=False), unsafe_allow_html=True)
+    columns_to_drop = ['ComputerName', 'UpdateTimeStamp']
+    columns_to_drop = [col for col in columns_to_drop if col in display_df.columns]
+    st.markdown(display_df.drop(columns=columns_to_drop).to_html(index=False), unsafe_allow_html=True)
 
 with share_access_info:
     share_access_df = pd.read_sql("SELECT * FROM ShareAccessInfo", db_client.get_connection())
@@ -145,13 +132,9 @@ with share_access_info:
     computer_df = share_access_df[share_access_df['ComputerName'] == selected_computer]
     update_time = share_access_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
 
-    chart_col, table_col = st.columns(2)
+    st.markdown(f'''Share Access Info for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
 
-    with chart_col:
-        st.markdown(f'''Share Access Info for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
-
-    with table_col:
-        st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
+    st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
 
 with personal_certificates:
     personal_certificates_df = pd.read_sql("SELECT * FROM PersonalCertificates", db_client.get_connection())
