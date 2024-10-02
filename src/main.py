@@ -188,7 +188,7 @@ with local_users:
 with user_profile_list:
     user_profile_list_df = pd.read_sql("SELECT * FROM UserProfileList", db_client.get_connection())
     user_profile_list_df = user_profile_list_df[['ComputerName', 'Name', 'CreationTime', 'LastWriteTime', 'UpdateTimeStamp']]
-    user_profile_list_df['LastWriteTime'] = pd.to_datetime(user_profile_list_df['LastWriteTime'], errors='coerce') 
+    user_profile_list_df['LastWriteTime'] = pd.to_datetime(user_profile_list_df['LastWriteTime'], errors='coerce')
     user_profile_list_df['LastWriteTimeFormatted'] = user_profile_list_df['LastWriteTime'].dt.strftime('%d/%m/%Y %H:%M:%S')
 
     selected_computer = st.selectbox("Select a Computer ", user_profile_list_df['ComputerName'].unique(), key="user_profile_list")
@@ -202,4 +202,3 @@ with user_profile_list:
     display_df = display_df.rename(columns={'LastWriteTimeFormatted': 'LastWriteTime'})
     display_df = display_df[['Name', 'CreationTime', 'LastWriteTime']]
     st.markdown(display_df.to_html(index=False), unsafe_allow_html=True)
-    
