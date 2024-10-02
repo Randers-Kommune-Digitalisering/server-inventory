@@ -9,6 +9,11 @@ Dette projekt har til formål at visualiserer følgende data
 * Services
 * System Info(Last Boot Up Time)
 * Share Access Info(Shares)
+* Auto Run Info
+* Installed Updates
+* Local Users
+* UserProfileList
+
 
 ## Connect til MSSQL Databasen
 Følgende ENV variables indsættes. Disse findes inde på Bitwarden
