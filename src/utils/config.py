@@ -15,8 +15,4 @@ DB_USER = os.environ.get('DB_USER')
 DB_PASS = os.environ.get('DB_PASS')
 DB_NAME = os.environ.get('DB_NAME')
 
-# DB_USER = os.environ["DB_USER"].strip()
-# DB_PASS = os.environ["DB_PASS"].strip()
-# DB_HOST = os.environ["DB_HOST"].strip()
-# DB_PORT = os.environ["DB_PORT"].strip()
-# DB_DATABASE = os.environ["DB_DATABASE"].strip()
+
