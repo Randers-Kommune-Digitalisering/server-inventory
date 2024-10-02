@@ -13,8 +13,8 @@ st.set_page_config(page_title="Server Inventory", layout="wide")
 
 st.title("Server Inventory")
 
-tabs = ["Disk Space", "Installed Software", "Services", "System Info", "Scheduled Tasks", "Share Access Info", "Personal Certificates"]
-disk_tab, installed_software_tab, services_tab, system_info_tab, scheduled_tasks_tab, share_access_info, personal_certificates = st.tabs(tabs)
+tabs = ["Disk Space", "Installed Software", "Services", "System Info", "Scheduled Tasks", "Share Access Info", "Personal Certificates", "Auto Run Info"]
+disk_tab, installed_software_tab, services_tab, system_info_tab, scheduled_tasks_tab, share_access_info, personal_certificates, auto_run_info = st.tabs(tabs)
 
 with disk_tab:
     diskspace_df = pd.read_sql("SELECT * FROM DiskSpace", db_client.get_connection())
@@ -160,3 +160,15 @@ with personal_certificates:
     display_df = display_df.rename(columns={'NotAfterFormatted': 'NotAfter'})
     display_df = display_df[['Subject', 'NotBefore', 'NotAfter', 'Issuer', 'Subject Alternative Name']]
     st.markdown(display_df.to_html(index=False), unsafe_allow_html=True)
+
+with auto_run_info:
+    auto_run_info_df = pd.read_sql("SELECT * FROM AutoRunInfo", db_client.get_connection())
+    auto_run_info_df = auto_run_info_df[['ComputerName', 'Name', 'User', 'UpdateTimeStamp']]
+
+    selected_computer = st.selectbox("Select a Computer", auto_run_info_df['ComputerName'].unique(), key="auto_run_info")
+    computer_df = auto_run_info_df[auto_run_info_df['ComputerName'] == selected_computer]
+    update_time = auto_run_info_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
+
+    st.markdown(f'''Auto Run Info for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
+
+    st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
