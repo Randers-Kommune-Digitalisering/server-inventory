@@ -13,8 +13,8 @@ st.set_page_config(page_title="Server Inventory", layout="wide")
 
 st.title("Server Inventory")
 
-tabs = ["Disk Space", "Installed Software", "Services", "System Info", "Scheduled Tasks", "Share Access Info", "Personal Certificates", "Auto Run Info", "Local Users"]
-disk_tab, installed_software_tab, services_tab, system_info_tab, scheduled_tasks_tab, share_access_info, personal_certificates, auto_run_info, local_users = st.tabs(tabs)
+tabs = ["Disk Space", "Installed Software", "Services", "System Info", "Scheduled Tasks", "Share Access Info", "Personal Certificates", "Auto Run Info", "Local Users", "UserProfileList"]
+disk_tab, installed_software_tab, services_tab, system_info_tab, scheduled_tasks_tab, share_access_info, personal_certificates, auto_run_info, local_users, user_profile_list = st.tabs(tabs)
 
 with disk_tab:
     diskspace_df = pd.read_sql("SELECT * FROM DiskSpace", db_client.get_connection())
@@ -184,3 +184,22 @@ with local_users:
     st.markdown(f'''Local Users for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
 
     st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
+
+with user_profile_list:
+    user_profile_list_df = pd.read_sql("SELECT * FROM UserProfileList", db_client.get_connection())
+    user_profile_list_df = user_profile_list_df[['ComputerName', 'Name', 'CreationTime', 'LastWriteTime', 'UpdateTimeStamp']]
+    user_profile_list_df['LastWriteTime'] = pd.to_datetime(user_profile_list_df['LastWriteTime'], errors='coerce') 
+    user_profile_list_df['LastWriteTimeFormatted'] = user_profile_list_df['LastWriteTime'].dt.strftime('%d/%m/%Y %H:%M:%S')
+
+    selected_computer = st.selectbox("Select a Computer ", user_profile_list_df['ComputerName'].unique(), key="user_profile_list")
+    computer_df = user_profile_list_df[user_profile_list_df['ComputerName'] == selected_computer]
+    computer_df = computer_df.sort_values(by='LastWriteTime', ascending=False)
+    update_time = user_profile_list_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
+
+    st.markdown(f'''User Profile List for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
+
+    display_df = computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp', 'LastWriteTime'])
+    display_df = display_df.rename(columns={'LastWriteTimeFormatted': 'LastWriteTime'})
+    display_df = display_df[['Name', 'CreationTime', 'LastWriteTime']]
+    st.markdown(display_df.to_html(index=False), unsafe_allow_html=True)
+    
