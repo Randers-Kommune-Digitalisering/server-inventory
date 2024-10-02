@@ -102,7 +102,7 @@ with system_info_tab:
 
 with scheduled_tasks_tab:
     scheduled_tasks_df = pd.read_sql("SELECT * FROM ScheduledTasks", db_client.get_connection())
-    scheduled_tasks_df = scheduled_tasks_df[['ComputerName', 'TaskName', 'LastRunTime', 'NextRunTime', 'Schedule', 'UpdateTimeStamp']]
+    scheduled_tasks_df = scheduled_tasks_df[['ComputerName', 'TaskName', 'LastRunTime', 'NextRunTime', 'Schedule', 'UpdateTimeStamp', 'Principal']]
 
     selected_computer = st.selectbox("Select a Computer", scheduled_tasks_df['ComputerName'].unique(), key="scheduled_tasks")
     computer_df = scheduled_tasks_df[scheduled_tasks_df['ComputerName'] == selected_computer]
@@ -110,9 +110,9 @@ with scheduled_tasks_tab:
     value_to_exclude = ('User_Feed_Synchronization', 'Optimize Start Menu Cache Files', 'Firefox')
     filtered_df = computer_df[~computer_df['TaskName'].str.startswith(value_to_exclude)]
 
-    display_df = computer_df[['ComputerName', 'LastRunTime', 'NextRunTime', 'Schedule']].drop_duplicates().merge(
-        filtered_df[['ComputerName', 'TaskName', 'LastRunTime', 'NextRunTime', 'Schedule']],
-        on=['ComputerName', 'LastRunTime', 'NextRunTime', 'Schedule'],
+    display_df = computer_df[['ComputerName', 'LastRunTime', 'NextRunTime', 'Schedule', 'Principal']].drop_duplicates().merge(
+        filtered_df[['ComputerName', 'TaskName', 'LastRunTime', 'NextRunTime', 'Schedule', 'Principal']],
+        on=['ComputerName', 'LastRunTime', 'NextRunTime', 'Schedule', 'Principal'],
         how='left'
     )
 
