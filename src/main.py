@@ -104,7 +104,6 @@ with scheduled_tasks_tab:
     scheduled_tasks_df = pd.read_sql("SELECT * FROM ScheduledTasks", db_client.get_connection())
     scheduled_tasks_df = scheduled_tasks_df[['ComputerName', 'TaskName', 'LastRunTime', 'NextRunTime', 'Schedule', 'UpdateTimeStamp', 'Principal']]
     scheduled_tasks_df['LastRunTime'] = pd.to_datetime(scheduled_tasks_df['LastRunTime'], errors='coerce')
-    # scheduled_tasks_df['LastRunTimeFormatted'] = scheduled_tasks_df['LastRunTime'].dt.strftime('%d/%m/%Y %H:%M:%S')
 
     selected_computer = st.selectbox("Select a Computer", scheduled_tasks_df['ComputerName'].unique(), key="scheduled_tasks")
     computer_df = scheduled_tasks_df[scheduled_tasks_df['ComputerName'] == selected_computer]
