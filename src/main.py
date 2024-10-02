@@ -14,7 +14,7 @@ st.set_page_config(page_title="Server Inventory", layout="wide")
 st.title("Server Inventory")
 
 tabs = ["Disk Space", "Installed Software", "Services", "System Info", "Scheduled Tasks", "Share Access Info", "Personal Certificates", "Auto Run Info", "Local Users", "UserProfileList"]
-disk_tab, installed_software_tab, services_tab, system_info_tab, scheduled_tasks_tab, share_access_info, personal_certificates, auto_run_info, local_users, user_profile_list = st.tabs(tabs)
+disk_tab, installed_software_tab, services_tab, system_info_tab, scheduled_tasks_tab, share_access_info_tab, personal_certificates_tab, auto_run_info_tab, local_users_tab, user_profile_list_tab = st.tabs(tabs)
 
 with disk_tab:
     diskspace_df = pd.read_sql("SELECT * FROM DiskSpace", db_client.get_connection())
@@ -124,7 +124,7 @@ with scheduled_tasks_tab:
     columns_to_drop = [col for col in columns_to_drop if col in display_df.columns]
     st.markdown(display_df.drop(columns=columns_to_drop).to_html(index=False), unsafe_allow_html=True)
 
-with share_access_info:
+with share_access_info_tab:
     share_access_df = pd.read_sql("SELECT * FROM ShareAccessInfo", db_client.get_connection())
     share_access_df = share_access_df[['ComputerName', 'ShareName', 'SharePath', 'NTFSAccessList', 'SMBAccessList', 'UpdateTimeStamp']]
 
@@ -136,7 +136,7 @@ with share_access_info:
 
     st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
 
-with personal_certificates:
+with personal_certificates_tab:
     personal_certificates_df = pd.read_sql("SELECT * FROM PersonalCertificates", db_client.get_connection())
     personal_certificates_df = personal_certificates_df[['ComputerName', 'Subject', 'NotBefore', 'NotAfter', 'Issuer', 'Subject Alternative Name', 'UpdateTimeStamp']]
     personal_certificates_df['NotAfter'] = pd.to_datetime(personal_certificates_df['NotAfter'], errors='coerce')
@@ -161,7 +161,7 @@ with personal_certificates:
     display_df = display_df[['Subject', 'NotBefore', 'NotAfter', 'Issuer', 'Subject Alternative Name']]
     st.markdown(display_df.to_html(index=False), unsafe_allow_html=True)
 
-with auto_run_info:
+with auto_run_info_tab:
     auto_run_info_df = pd.read_sql("SELECT * FROM AutoRunInfo", db_client.get_connection())
     auto_run_info_df = auto_run_info_df[['ComputerName', 'Name', 'User', 'UpdateTimeStamp']]
 
@@ -173,7 +173,7 @@ with auto_run_info:
 
     st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
 
-with local_users:
+with local_users_tab:
     local_users_df = pd.read_sql("SELECT * FROM LocalUsers", db_client.get_connection())
     local_users_df = local_users_df[['ComputerName', 'UserName', 'GroupMemberships', 'PasswordLastSet', 'LastLogonDate', 'Enabled', 'UpdateTimeStamp']]
 
@@ -185,7 +185,7 @@ with local_users:
 
     st.markdown(computer_df.drop(columns=['ComputerName', 'UpdateTimeStamp']).to_html(index=False), unsafe_allow_html=True)
 
-with user_profile_list:
+with user_profile_list_tab:
     user_profile_list_df = pd.read_sql("SELECT * FROM UserProfileList", db_client.get_connection())
     user_profile_list_df = user_profile_list_df[['ComputerName', 'Name', 'CreationTime', 'LastWriteTime', 'UpdateTimeStamp']]
     user_profile_list_df['LastWriteTime'] = pd.to_datetime(user_profile_list_df['LastWriteTime'], errors='coerce')
