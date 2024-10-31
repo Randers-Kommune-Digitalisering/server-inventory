@@ -14,7 +14,3 @@ DB_HOST = os.environ.get('DB_HOST')
 DB_USER = os.environ.get('DB_USER')
 DB_PASS = os.environ.get('DB_PASS')
 DB_NAME = os.environ.get('DB_NAME')
-
-KEYCLOAK_URL = os.environ["KEYCLOAK_URL"].rstrip()
-KEYCLOAK_REALM = os.environ["KEYCLOAK_REALM"].rstrip()
-KEYCLOAK_CLIENT_ID = os.environ["KEYCLOAK_CLIENT_ID"].rstrip()

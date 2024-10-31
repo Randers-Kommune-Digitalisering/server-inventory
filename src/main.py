@@ -56,6 +56,12 @@ with disk_tab:
     formatdict['PercentageUsed'] = "{:.2%}"
     st.markdown(table_df.style.format(formatdict).hide(axis="index").to_html(), unsafe_allow_html=True)
 
+    if st.button("Show Highest Percentage Used"):
+        highest_percentage_df = table_df.sort_values(by='PercentageUsed', ascending=False).head(1)
+        higest_percentage_df = highest_percentage_df[['ComputerName', 'Drive', 'UsedSpace_GB', 'FreeSpace_GB', 'TotalSize_GB', 'PercentageUsed']]
+        with st.expander("Highest Percentage Used"):
+            st.markdown(highest_percentage_df.style.format(formatdict).hide(axis="index").to_html(), unsafe_allow_html=True)
+
 with installed_software_tab:
     installed_software_df = pd.read_sql("SELECT * FROM InstalledSoftware", db_client.get_connection())
     installed_software_df['InstallDate'] = pd.to_datetime(installed_software_df['InstallDate'], errors='coerce')
