@@ -56,11 +56,18 @@ with disk_tab:
     formatdict['PercentageUsed'] = "{:.2%}"
     st.markdown(table_df.style.format(formatdict).hide(axis="index").to_html(), unsafe_allow_html=True)
 
+    if st.button("Show Highest Percentage Used"):
+        highest_percentage_df = table_df.sort_values(by='PercentageUsed', ascending=False).head(1)
+        higest_percentage_df = highest_percentage_df[['ComputerName', 'Drive', 'UsedSpace_GB', 'FreeSpace_GB', 'TotalSize_GB', 'PercentageUsed']]
+        with st.expander("Highest Percentage Used"):
+            st.markdown(highest_percentage_df.style.format(formatdict).hide(axis="index").to_html(), unsafe_allow_html=True)
+
 with installed_software_tab:
     installed_software_df = pd.read_sql("SELECT * FROM InstalledSoftware", db_client.get_connection())
     installed_software_df['InstallDate'] = pd.to_datetime(installed_software_df['InstallDate'], errors='coerce')
     installed_software_df = installed_software_df[['ComputerName', 'DisplayName', 'DisplayVersion', 'InstallDate', 'Publisher', 'UpdateTimeStamp']]
 
+    installed_software_df['InstallDate'] = pd.to_datetime(installed_software_df['InstallDate']).dt.strftime('%d/%m-%Y')
     selected_computer = st.selectbox("Select a Computer", installed_software_df['ComputerName'].unique(), key="installed_software_computer")
     computer_df = installed_software_df[installed_software_df['ComputerName'] == selected_computer]
     update_time = computer_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
@@ -87,6 +94,7 @@ with system_info_tab:
     system_info_df = system_info_df.rename(columns={'lastbootuptime': 'LastBootUpTime'})
 
     computer_options = ['All Computers'] + list(system_info_df['ComputerName'].unique())
+    system_info_df['LastBootUpTime'] = pd.to_datetime(system_info_df['LastBootUpTime']).dt.strftime('%d/%m-%Y %H:%M:%S')
     selected_computer = st.selectbox("Select a Computer", computer_options)
 
     if selected_computer == 'All Computers':
@@ -105,6 +113,8 @@ with scheduled_tasks_tab:
     scheduled_tasks_df = scheduled_tasks_df[['ComputerName', 'TaskName', 'LastRunTime', 'NextRunTime', 'Schedule', 'UpdateTimeStamp', 'Principal']]
     scheduled_tasks_df['LastRunTime'] = pd.to_datetime(scheduled_tasks_df['LastRunTime'], errors='coerce')
 
+    scheduled_tasks_df['LastRunTime'] = pd.to_datetime(scheduled_tasks_df['LastRunTime']).dt.strftime('%d/%m-%Y %H:%M:%S')
+    scheduled_tasks_df['NextRunTime'] = pd.to_datetime(scheduled_tasks_df['NextRunTime']).dt.strftime('%d/%m-%Y %H:%M:%S')
     selected_computer = st.selectbox("Select a Computer", scheduled_tasks_df['ComputerName'].unique(), key="scheduled_tasks")
     computer_df = scheduled_tasks_df[scheduled_tasks_df['ComputerName'] == selected_computer]
     computer_df = computer_df.sort_values(by='LastRunTime', ascending=False)
@@ -144,6 +154,7 @@ with personal_certificates_tab:
     personal_certificates_df['NotAfterFormatted'] = personal_certificates_df['NotAfter'].dt.strftime('%d/%m/%Y %H:%M:%S')
 
     computer_options = ['All Computers'] + list(personal_certificates_df['ComputerName'].unique())
+    personal_certificates_df['NotBefore'] = pd.to_datetime(personal_certificates_df['NotBefore']).dt.strftime('%d/%m-%Y %H:%M:%S')
     selected_computer = st.selectbox("Select a Computer", computer_options, key="personal_certificates")
 
     if selected_computer == 'All Computers':
@@ -178,6 +189,9 @@ with local_users_tab:
     local_users_df = pd.read_sql("SELECT * FROM LocalUsers", db_client.get_connection())
     local_users_df = local_users_df[['ComputerName', 'UserName', 'GroupMemberships', 'PasswordLastSet', 'LastLogonDate', 'Enabled', 'UpdateTimeStamp']]
 
+    local_users_df['PasswordLastSet'] = pd.to_datetime(local_users_df['PasswordLastSet']).dt.strftime('%d/%m-%Y %H:%M:%S')
+    local_users_df['LastLogonDate'] = pd.to_datetime(local_users_df['LastLogonDate']).dt.strftime('%d/%m-%Y %H:%M:%S')
+
     selected_computer = st.selectbox("Select a Computer", local_users_df['ComputerName'].unique(), key="local_users")
     computer_df = local_users_df[local_users_df['ComputerName'] == selected_computer]
     update_time = local_users_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
@@ -191,6 +205,7 @@ with user_profile_list_tab:
     user_profile_list_df = user_profile_list_df[['ComputerName', 'Name', 'CreationTime', 'LastWriteTime', 'UpdateTimeStamp']]
     user_profile_list_df['LastWriteTime'] = pd.to_datetime(user_profile_list_df['LastWriteTime'], errors='coerce')
     user_profile_list_df['LastWriteTimeFormatted'] = user_profile_list_df['LastWriteTime'].dt.strftime('%d/%m/%Y %H:%M:%S')
+    user_profile_list_df['CreationTime'] = pd.to_datetime(user_profile_list_df['CreationTime']).dt.strftime('%d/%m-%Y %H:%M:%S')
 
     selected_computer = st.selectbox("Select a Computer ", user_profile_list_df['ComputerName'].unique(), key="user_profile_list")
     computer_df = user_profile_list_df[user_profile_list_df['ComputerName'] == selected_computer]
