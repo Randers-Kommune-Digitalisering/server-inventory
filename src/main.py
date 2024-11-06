@@ -103,7 +103,7 @@ with system_info_tab:
     system_info_df = system_info_df.rename(columns={'lastbootuptime': 'LastBootUpTime'})
 
     computer_options = ['All Computers'] + list(system_info_df['ComputerName'].unique())
-    system_info_df['LastBootUpTime'] = pd.to_datetime(system_info_df['LastBootUpTime']).dt.strftime('%d/%m-%Y %H:%M:%S')
+    system_info_df['LastBootUpTime'] = pd.to_datetime(system_info_df['LastBootUpTime'])
     selected_computer = st.selectbox("Select a Computer", computer_options)
 
     if selected_computer == 'All Computers':
@@ -114,6 +114,7 @@ with system_info_tab:
         update_time = computer_df.UpdateTimeStamp.mean().round('1s').strftime('%d/%m-%Y %H:%M:%S')
 
     computer_df = computer_df.sort_values(by='LastBootUpTime', ascending=True)
+    computer_df['LastBootUpTime'] = computer_df['LastBootUpTime'].dt.strftime('%d/%m-%Y %H:%M:%S')
 
     st.markdown(f'''System Info for: :blue-background[{selected_computer}] - :red-background[{update_time}] ''')
 
