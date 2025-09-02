@@ -19,7 +19,7 @@ COPY . $HOME
 WORKDIR $HOME
 
 # Set permissions
-RUN chown -R $USER_ID:$GROUP_ID /src && chmod -R 775 /src
+# RUN chown -R $USER_ID:$GROUP_ID /src && chmod -R 775 /src
 
 # Install python packages
 RUN pip install --upgrade pip
