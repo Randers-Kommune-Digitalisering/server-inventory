@@ -13,6 +13,8 @@ class DatabaseClient:
         self.connection = None
         self.cursor = None
 
+        self.logger.info(f"Initializing DatabaseClient with database={database}, username={username}, host={host}")
+
     def get_connection(self):
         try:
             if not self.connection:
